@@ -122,7 +122,7 @@ if [ -f /etc/docker-leader ] ||
             /usr/sbin/httpd -k start
             sleep 2
             #certbot certonly --webroot -n -w /var/www/localhost/htdocs/openemr/ -d $DOMAIN $EMAIL --agree-tos
-            certbot certonly --webroot -n -w /var/www/localhost/htdocs/openemr/ -d www.medicode.nl -d medicode.nl boxlady@gmail.com --agree-tos
+            certbot certonly --webroot -n -w /var/www/localhost/htdocs/openemr/ -d www.medicode.nl, medicode.nl -m boxlady@gmail.com --agree-tos
             /usr/sbin/httpd -k stop
             echo "1 23  *   *   *   certbot renew -q --post-hook \"httpd -k graceful\"" >> /etc/crontabs/root
         fi
