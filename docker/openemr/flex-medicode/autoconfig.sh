@@ -121,7 +121,7 @@ if [ -f /etc/docker-leader ] ||
         if ! [ -f /etc/letsencrypt/live/$DOMAIN/fullchain.pem ]; then
             /usr/sbin/httpd -k start
             sleep 2
-            #certbot certonly --webroot -n -w /var/www/localhost/htdocs/openemr/ -d $DOMAIN $EMAIL --agree-tos
+            certbot certonly --webroot -n -w /var/www/localhost/htdocs/openemr/ -d $DOMAIN $EMAIL --agree-tos
             #certbot certonly --webroot -n -w /var/www/localhost/htdocs/openemr/ -d www.medicode.nl --agree-tos
             certbot certonly --webroot --agree-tos -w /var/www/localhost/htdocs/openemr/ \--expand -d medicode.nl,www.medicode.nl,openemr.medicode.nl
             /usr/sbin/httpd -k stop
