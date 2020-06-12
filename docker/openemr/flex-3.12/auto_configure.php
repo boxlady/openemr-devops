@@ -1,8 +1,9 @@
 <?php
-// Include standard libraries/classes
 require_once('/var/www/localhost/htdocs/openemr/vendor/autoload.php');
-// Include password hashing library
-require_once('/var/www/localhost/htdocs/openemr/library/authentication/password_hashing.php');
+if (file_exists('/var/www/localhost/htdocs/openemr/library/authentication/password_hashing.php')) {
+    // This is to support older code (OpenEMR 5.0.2 and lower)
+    require_once('/var/www/localhost/htdocs/openemr/library/authentication/password_hashing.php');
+}
 // Set up default configuration settings
 $installSettings = array();
 $installSettings['iuser']                    = 'admin';
