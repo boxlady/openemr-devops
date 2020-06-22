@@ -16,6 +16,8 @@
 #      code from github (uses local repo).
 set -e
 
+source /root/devtoolsLibrary.source
+
 swarm_wait() {
     if [ ! -f /var/www/localhost/htdocs/openemr/sites/default/docker-completed ]; then
         # true
@@ -27,35 +29,7 @@ swarm_wait() {
 }
 
 auto_setup() {
-
-    CONFIGURATION="server=${MYSQL_HOST} rootpass=${MYSQL_ROOT_PASS} loginhost=%"
-    if [ "$MYSQL_ROOT_USER" != "" ]; then
-        CONFIGURATION="${CONFIGURATION} root=${MYSQL_ROOT_USER}"
-    fi
-    if [ "$MYSQL_USER" != "" ]; then
-        CONFIGURATION="${CONFIGURATION} login=${MYSQL_USER}"
-        CUSTOM_USER="$MYSQL_USER"
-    else
-        CUSTOM_USER="openemr"
-    fi
-    if [ "$MYSQL_PASS" != "" ]; then
-        CONFIGURATION="${CONFIGURATION} pass=${MYSQL_PASS}"
-        CUSTOM_PASSWORD="$MYSQL_PASS"
-    else
-        CUSTOM_PASSWORD="openemr"
-    fi
-    if [ "$MYSQL_DATABASE" != "" ]; then
-        CONFIGURATION="${CONFIGURATION} dbname=${MYSQL_DATABASE}"
-        CUSTOM_DATABASE="$MYSQL_DATABASE"
-    else
-        CUSTOM_DATABASE="openemr"
-    fi
-    if [ "$OE_USER" != "" ]; then
-        CONFIGURATION="${CONFIGURATION} iuser=${OE_USER}"
-    fi
-    if [ "$OE_PASS" != "" ]; then
-        CONFIGURATION="${CONFIGURATION} iuserpass=${OE_PASS}"
-    fi
+    prepareVariables
 
     if [ "$EASY_DEV_MODE" != "yes" ]; then
         chmod -R 600 /var/www/localhost/htdocs/openemr
@@ -70,19 +44,15 @@ auto_setup() {
         exit 2
     fi
 
-    # Set requested openemr settings
-    OPENEMR_SETTINGS=`printenv | grep '^OPENEMR_SETTING_'`
-    if [ -n "$OPENEMR_SETTINGS" ]; then
-        echo "$OPENEMR_SETTINGS" |
-        while IFS= read -r line; do
-            SETTING_TEMP=`echo "$line" | cut -d "=" -f 1`
-            # note am omitting the letter O on purpose
-            CORRECT_SETTING_TEMP=`echo "$SETTING_TEMP" | awk -F 'PENEMR_SETTING_' '{print $2}'`
-            VALUE_TEMP=`echo "$line" | cut -d "=" -f 2`
-            echo "Set ${CORRECT_SETTING_TEMP} to ${VALUE_TEMP}"
-            mysql -u "$CUSTOM_USER"  --password="$CUSTOM_PASSWORD" -h "$MYSQL_HOST" -e "UPDATE globals SET gl_value = '${VALUE_TEMP}' WHERE gl_name = '${CORRECT_SETTING_TEMP}'" "$CUSTOM_DATABASE"
-        done
+    if [ "$DEMO_MODE" == "standard" ]; then
+        demoData
     fi
+
+    if [ "$SQL_DATA_DRIVE" != "" ]; then
+        sqlDataDrive
+    fi
+
+    setGlobalSettings
 }
 
 if [ "$SWARM_MODE" == "yes" ]; then
@@ -309,6 +279,11 @@ if [ -f /etc/docker-leader ] ||
         fi
     fi
 
+    # need to copy this script somewhere so the easy dev environment can use it
+    if [ "$EASY_DEV_MODE_NEW" == "yes" ]; then
+        cp /var/www/localhost/htdocs/auto_configure.php /root/
+    fi
+
     # ensure the auto_configure.php script has been removed
     rm -f /var/www/localhost/htdocs/auto_configure.php
 fi
@@ -340,7 +315,6 @@ if [ "$XDEBUG_IDE_KEY" != "" ] &&
     echo "xdebug.remote_enable=1" >> /etc/php7/php.ini
     echo "xdebug.remote_handler=dbgp" >> /etc/php7/php.ini
     echo "xdebug.remote_port=9000" >> /etc/php7/php.ini
-    echo "xdebug.remote_autostart=1" >> /etc/php7/php.ini
     echo "xdebug.remote_connect_back=1" >> /etc/php7/php.ini
     echo "xdebug.idekey=${XDEBUG_IDE_KEY}" >> /etc/php7/php.ini
     echo "xdebug.remote_log=/tmp/xdebug.log" >> /etc/php7/php.ini
@@ -349,7 +323,7 @@ if [ "$XDEBUG_IDE_KEY" != "" ] &&
         echo "xdebug.profiler_enable=0" >> /etc/php7/php.ini
         echo "xdebug.profiler_enable_trigger=1" >> /etc/php7/php.ini
         echo "xdebug.profiler_output_dir=/tmp" >> /etc/php7/php.ini
-        echo "xdebug.profiler_output_name=cachegrind.out.%p" >> /etc/php7/php.ini
+        echo "xdebug.profiler_output_name=cachegrind.out.%s" >> /etc/php7/php.ini
     fi
     echo "; end xdebug configuration" >> /etc/php7/php.ini
 
