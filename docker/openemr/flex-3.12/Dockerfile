@@ -1,6 +1,6 @@
 FROM alpine:3.12
 
-#Install dependencies
+#Install dependencies and fix issue in apache
 RUN apk --no-cache upgrade
 RUN apk add --no-cache \
     apache2 apache2-ssl git php7 php7-tokenizer php7-ctype php7-session php7-apache2 \
@@ -9,8 +9,9 @@ RUN apk add --no-cache \
     php7-mysqli php7-sockets php7-xmlreader php7-redis perl php7-simplexml php7-xmlwriter php7-phar php7-fileinfo \
     php7-sodium php7-calendar \
     mysql-client tar curl imagemagick npm \
-    python3 openssl git libffi-dev py-pip python3-dev build-base openssl-dev dcron \
-    rsync shadow jq
+    python2 python3 openssl git libffi-dev py-pip python3-dev build-base openssl-dev dcron \
+    rsync shadow jq \
+    && sed -i 's/^Listen 80$/Listen 0.0.0.0:80/' /etc/apache2/httpd.conf
 # Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
     RUN usermod -u 1000 apache
 #Stuff for developers since this predominantly a developer/tester docker
@@ -47,7 +48,9 @@ RUN mkdir -p /couchdb/original
 #Copy demo data to root
 COPY utilities/demo_5_0_0_5.sql /root/
 RUN chmod 500 /root/devtools
-
+#Ensure swarm/orchestration pieces are available if needed
+RUN mkdir /swarm-pieces \
+    && rsync --owner --group --perms --delete --recursive --links /etc/ssl /swarm-pieces/
 #go
 CMD [ "./run_openemr.sh" ]
 

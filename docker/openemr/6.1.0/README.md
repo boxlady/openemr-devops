@@ -3,6 +3,12 @@
 The docker image is maintained at https://hub.docker.com/r/openemr/openemr/
 (see there for more details)
 
+## Tags
+
+See the https://hub.docker.com/r/openemr/openemr/ page for documentation of tags and their current aliases.
+
+It is recommended to specify a version number in production, to ensure your build process pulls what you expect it to.
+
 ## How can I just spin up OpenEMR?
 
 *You **need** to run an instance of mysql/mariadb as well and connect it to this container! You can then either use auto-setup with environment variables (see below) or you can manually set up, telling the server where to find the db.* The easiest way is to use `docker-compose`. The following `docker-compose.yml` file is a good example:
@@ -10,7 +16,6 @@ The docker image is maintained at https://hub.docker.com/r/openemr/openemr/
 ```yaml
 # Use admin/pass as user/password credentials to login to openemr (from OE_USER and OE_PASS below)
 # MYSQL_HOST and MYSQL_ROOT_PASS are required for openemr
-# FLEX_REPOSITORY and (FLEX_REPOSITORY_BRANCH or FLEX_REPOSITORY_TAG) are required for flex openemr
 # MYSQL_USER, MYSQL_PASS, OE_USER, MYSQL_PASS are optional for openemr and
 #   if not provided, then default to openemr, openemr, admin, and pass respectively.
 version: '3.1'
@@ -25,7 +30,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
   openemr:
     restart: always
-    image: openemr/openemr:flex-3.12
+    image: openemr/openemr:6.1.0
     ports:
     - 80:80
     - 443:443
@@ -39,8 +44,6 @@ services:
       MYSQL_PASS: openemr
       OE_USER: admin
       OE_PASS: pass
-      FLEX_REPOSITORY: https://github.com/openemr/openemr.git
-      FLEX_REPOSITORY_BRANCH: master
     depends_on:
     - mysql
 volumes:
@@ -48,7 +51,7 @@ volumes:
   sitevolume: {}
   databasevolume: {}
 ```
-[![Try it!](https://github.com/play-with-docker/stacks/raw/cff22438cb4195ace27f9b15784bbb497047afa7/assets/images/button.png)](http://play-with-docker.com/?stack=https://gist.githubusercontent.com/bradymiller/4e19c77b28a28f1cfc10bdfed67d2ee2/raw/f7771f780ac47a01a4d6f111c579877824bf1809/openemr-flex-312-docker-example-docker-compose.yml)
+[![Try it!](https://github.com/play-with-docker/stacks/raw/cff22438cb4195ace27f9b15784bbb497047afa7/assets/images/button.png)](http://play-with-docker.com/?stack=https://gist.githubusercontent.com/bradymiller/934c05f3025e444282ae25bd7a2e8f8d/raw/a676c4f5cb9d568fc420393b02d9ff34a787931f/openemr-610-docker-example-docker-compose.yml)
 
 ## Environment Variables
 
