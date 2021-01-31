@@ -334,8 +334,7 @@ if [ "$REDIS_SERVER" != "" ] &&
     touch /etc/php-redis-configured
 fi
 
-if [ "$XDEBUG_IDE_KEY" != "" ] &&
-   [ ! -f /etc/php-xdebug-configured ]; then
+
     # install xdebug library
     apk update
     apk add --no-cache php7-pecl-xdebug
@@ -360,4 +359,4 @@ if [ "$XDEBUG_IDE_KEY" != "" ] &&
 
     # Ensure only configure this one time
     touch /etc/php-xdebug-configured
-fi
+
