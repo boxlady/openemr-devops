@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "OpenEMR Cloud Standard v5.0.2-3 cloud deployment",
+    "Description": "OpenEMR Cloud Standard v6.0.0 cloud deployment",
     "Mappings": {
         "RegionData": {
             "ap-northeast-1": {
@@ -190,21 +190,21 @@
         },
         "RDSInstanceSize": {
             "AllowedValues": [
-                "db.t2.small",
-                "db.t2.medium",
-                "db.t2.large",
-                "db.t2.xlarge",
-                "db.t2.2xlarge",
-                "db.m4.large",
-                "db.m4.xlarge",
-                "db.m4.2xlarge",
-                "db.m4.4xlarge",
-                "db.r4.large",
-                "db.r4.xlarge",
-                "db.r4.2xlarge",
-                "db.r4.4xlarge"
+                "db.t3.small",
+                "db.t3.medium",
+                "db.t3.large",
+                "db.t3.xlarge",
+                "db.t3.2xlarge",
+                "db.m5.large",
+                "db.m5.xlarge",
+                "db.m5.2xlarge",
+                "db.m5.4xlarge",
+                "db.r5.large",
+                "db.r5.xlarge",
+                "db.r5.2xlarge",
+                "db.r5.4xlarge"
             ],
-            "Default": "db.t2.small",
+            "Default": "db.t3.small",
             "Description": "RDS instance size for the back-end database",
             "Type": "String"
         },
@@ -745,7 +745,7 @@
                                             "  openemr:\n",
                                             "    restart: always\n",
                                             "    image: openemr/openemr",
-                                            ":5.0.2",
+                                            ":6.0.0",
                                             "\n",
                                             "    ports:\n",
                                             "    - 80:80\n",
